@@ -16,7 +16,7 @@ app.use(session({
 }))
 
 app.get('/signup', (req,res)=>{
-    res.render('signup')
+    res.status(200).render('signup')
 })
 
 app.post('/signup', async (req,res)=>{
@@ -25,9 +25,34 @@ app.post('/signup', async (req,res)=>{
         password: req.body.password,
         email: req.body.email
     })
-
     res.status(201).send(`User ${user.id} created`)
 })
+
+app.get('/login', (req,res)=>{
+    res.status(200).render('login')
+})
+
+app.post('/login', async (req,res)=>{
+    const user = await Users.findOne({where:{username: req.body.username}})
+    if(!user){
+        return res.status(404).render('login', {error: 'No username found'})
+    }
+    if(user.password != req.body.password){
+        return res.status(401).render('login', {error: 'Incorrect Password'})
+    }
+    req.session.userId = user.id
+    res.redirect('/profile')
+
+})
+
+app.get('/profile', async (req,res)=>{
+    if(!req.session.userId){
+        return res.redirect('login')
+    }
+    const user = await Users.findByPk(req.session.userId)
+    res.status(200).render('profile', { user })
+})
+
 
 db.sync()
 .then(()=>{
