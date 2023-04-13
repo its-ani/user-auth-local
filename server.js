@@ -2,10 +2,11 @@ const express = require('express')
 const session = require('express-session')
 
 
-const {db} = require('./db')
+const {db, Users} = require('./db')
 
 const app = express()
-
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 app.set('view engine', 'hbs')
 
 app.use(session({
@@ -16,6 +17,16 @@ app.use(session({
 
 app.get('/signup', (req,res)=>{
     res.render('signup')
+})
+
+app.post('/signup', async (req,res)=>{
+    const user = await Users.create({
+        username : req.body.username,
+        password: req.body.password,
+        email: req.body.email
+    })
+
+    res.status(201).send(`User ${user.id} created`)
 })
 
 db.sync()

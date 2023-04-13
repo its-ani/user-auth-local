@@ -24,3 +24,7 @@ const Users = db.define('user', {
         allowNull: false
     }
 })
+
+module.exports = {
+    db, Users
+  }
