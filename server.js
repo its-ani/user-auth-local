@@ -12,7 +12,10 @@ app.set('view engine', 'hbs')
 app.use(session({
     resave:true,
     saveUninitialized: true,
-    secret: 'sdjdijwniuwqiuher2332'
+    secret: 'sdjdijwniuwqiuher2332',
+    // cookie : {
+
+    // }
 }))
 
 app.get('/signup', (req,res)=>{
@@ -47,12 +50,17 @@ app.post('/login', async (req,res)=>{
 
 app.get('/profile', async (req,res)=>{
     if(!req.session.userId){
-        return res.redirect('login')
+        return res.redirect('/login')
     }
     const user = await Users.findByPk(req.session.userId)
     res.status(200).render('profile', { user })
 })
 
+app.get('/logout', (req,res)=>{
+    req.session.userId = null
+    req.session.destroy() //it will destroy cookies
+    res.redirect('/login')
+})
 
 db.sync()
 .then(()=>{
